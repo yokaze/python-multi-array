@@ -48,3 +48,7 @@ $ make
 ```
 
 You may change the include directory by editing setup.py.
+
+# Requirements
+
+boost 1.63.0+
