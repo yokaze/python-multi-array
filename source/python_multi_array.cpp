@@ -32,6 +32,20 @@ static python::object float64 = numpy.attr("float64");
 
 namespace python_multi_array
 {
+    //
+    //  [Python]
+    //  [array_type] multi_array.make(shape, dtype)
+    //
+    //  allocate a boost::multi_array of expected shape and data type.
+    //
+    //  shape: int, list or tuple
+    //  dtype: bool8, int8, int16, int32, int64, uint8, uint16, uint32, uint64,
+    //         float32 or float64, all defined in numpy
+    //
+    //  return: a smart-pointer of the array
+    //
+    python::object make(python::object shape, python::object dtype);
+
     namespace impl
     {
         template<class T>
@@ -85,6 +99,21 @@ namespace python_multi_array
         else if (dtype == float64) { return impl::make_typed<double>(shape); }
         else { throw std::invalid_argument("dtype"); }
     }
+
+    //
+    //  [Python]
+    //  T x[idx]
+    //  x[idx] = T
+    //
+    //  get and set one element via index operator.
+    //  Example:
+    //    x[2, 4] = 2.0
+    //
+    template<class T, size_t N>
+    T getitem(shared_ptr<multi_array<T, N>> t, python::object idx);
+
+    template<class T, size_t N>
+    void setitem(shared_ptr<multi_array<T, N>> t, python::object idx, T value);
 
     namespace impl
     {
@@ -152,12 +181,38 @@ namespace python_multi_array
         impl::setitem_impl(t, s, value);
     }
 
+    //
+    //  [Python]
+    //  x.reset()
+    //
+    //  This function resets every element of x with zero.
+    //
     template<class T, size_t N>
     void reset(shared_ptr<multi_array<T, N>> t)
     {
         std::fill(t->origin(), t->origin() + t->num_elements(), 0);
     }
 
+    //
+    //  [Python]
+    //  dtype x.element()
+    //
+    //  return: data type of the array. possible values are bool8, uint8,
+    //          uint16, uint32, uint64, int8, int16, int32, int64, float32,
+    //          float64, all defined in numpy.
+    //
+    template<class T, size_t N>
+    python::object element(shared_ptr<multi_array<T, N>> t)
+    {
+        return python::numpy::dtype::get_builtin<T>();
+    }
+
+    //
+    //  [Python]
+    //  tuple x.shape()
+    //
+    //  return: the shape of the array.
+    //
     template<class T, size_t N>
     python::object shape(shared_ptr<multi_array<T, N>> t)
     {
@@ -176,12 +231,26 @@ namespace python_multi_array
         }
     }
 
+    //
+    //  [Python]
+    //  int x.num_dimensions()
+    //
+    //  return: the number of dimensions of the array.
+    //
     template<class T, size_t N>
     size_t num_dimensions(shared_ptr<multi_array<T, N>>)
     {
         return N;
     }
 
+    //
+    //  [Python]
+    //  int x.num_elements()
+    //
+    //  return: the total number of elements of the array.
+    //  example:
+    //    It returns 8 for an array with shape (2, 4).
+    //
     template<class T, size_t N>
     size_t num_elements(shared_ptr<multi_array<T, N>> t)
     {
@@ -193,6 +262,12 @@ namespace python_multi_array
         return n;
     }
 
+    //
+    //  [Python]
+    //  numpy.ndarray x.get()
+    //
+    //  return: a copy of the array stored in numpy.ndarray.
+    //
     template<class T, size_t N>
     python::object get(shared_ptr<multi_array<T, N>> t)
     {
@@ -219,6 +294,17 @@ namespace python_multi_array
         python::tuple strides = make_tuple_from_array(d);
         return boost::python::numpy::from_data(t->origin(), dt, shape, strides, boost::python::object());
     }
+
+    //
+    //  [Python]
+    //  x.set(numpy.ndarray nd)
+    //
+    //  Reset the array with values from nd.
+    //  nd.dtype may be different from x.element() but the values are implicitly
+    //  converted to x.element().
+    //
+    template<class T, size_t N>
+    void set(shared_ptr<multi_array<T, N>> t, python::numpy::ndarray nd);
 
     namespace impl
     {
@@ -326,6 +412,10 @@ namespace python_multi_array
         else { throw std::invalid_argument("nd"); }
     }
 
+    //
+    //  [Internal-usage only]
+    //  let python interpreter to export types from this module.
+    //
     class array_template
     {
     public:
@@ -336,6 +426,7 @@ namespace python_multi_array
                 .def("__getitem__", &getitem<T, N>)
                 .def("__setitem__", &setitem<T, N>)
                 .def("reset", &reset<T, N>)
+                .def("element", &element<T, N>)
                 .def("shape", &shape<T, N>)
                 .def("num_dimensions", &num_dimensions<T, N>)
                 .def("num_elements", &num_elements<T, N>)
