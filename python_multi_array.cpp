@@ -5,11 +5,11 @@
 //  Copyright (C) 2017 Rue Yokaze
 //  Distributed under the MIT License.
 //
-#include <stdint.h>
 #include <boost/multi_array.hpp>
 #include <boost/python.hpp>
 #include <boost/python/numpy.hpp>
 #include <memory>
+#include <stdint.h>
 
 //  Using from python is avoided because many definitions conflict with names from std.
 namespace python = boost::python;
@@ -48,24 +48,33 @@ namespace python_multi_array
 
     namespace impl
     {
-        template<class T>
+        template <class T>
         python::object make_typed_sized(const size_t* s, size_t ndim)
         {
             switch (ndim)
             {
-                case 1: return python::object(std::make_shared<multi_array<T, 1>>(extents[s[0]]));
-                case 2: return python::object(std::make_shared<multi_array<T, 2>>(extents[s[0]][s[1]]));
-                case 3: return python::object(std::make_shared<multi_array<T, 3>>(extents[s[0]][s[1]][s[2]]));
-                case 4: return python::object(std::make_shared<multi_array<T, 4>>(extents[s[0]][s[1]][s[2]][s[3]]));
-                case 5: return python::object(std::make_shared<multi_array<T, 5>>(extents[s[0]][s[1]][s[2]][s[3]][s[4]]));
-                case 6: return python::object(std::make_shared<multi_array<T, 6>>(extents[s[0]][s[1]][s[2]][s[3]][s[4]][s[5]]));
-                case 7: return python::object(std::make_shared<multi_array<T, 7>>(extents[s[0]][s[1]][s[2]][s[3]][s[4]][s[5]][s[6]]));
-                case 8: return python::object(std::make_shared<multi_array<T, 8>>(extents[s[0]][s[1]][s[2]][s[3]][s[4]][s[5]][s[6]][s[7]]));
-                default: throw std::invalid_argument("shape");
+            case 1:
+                return python::object(std::make_shared<multi_array<T, 1>>(extents[s[0]]));
+            case 2:
+                return python::object(std::make_shared<multi_array<T, 2>>(extents[s[0]][s[1]]));
+            case 3:
+                return python::object(std::make_shared<multi_array<T, 3>>(extents[s[0]][s[1]][s[2]]));
+            case 4:
+                return python::object(std::make_shared<multi_array<T, 4>>(extents[s[0]][s[1]][s[2]][s[3]]));
+            case 5:
+                return python::object(std::make_shared<multi_array<T, 5>>(extents[s[0]][s[1]][s[2]][s[3]][s[4]]));
+            case 6:
+                return python::object(std::make_shared<multi_array<T, 6>>(extents[s[0]][s[1]][s[2]][s[3]][s[4]][s[5]]));
+            case 7:
+                return python::object(std::make_shared<multi_array<T, 7>>(extents[s[0]][s[1]][s[2]][s[3]][s[4]][s[5]][s[6]]));
+            case 8:
+                return python::object(std::make_shared<multi_array<T, 8>>(extents[s[0]][s[1]][s[2]][s[3]][s[4]][s[5]][s[6]][s[7]]));
+            default:
+                throw std::invalid_argument("shape");
             }
         }
 
-        template<class T>
+        template <class T>
         python::object make_typed(python::object shape)
         {
             python::extract<size_t> scalar_shape(shape);
@@ -86,18 +95,54 @@ namespace python_multi_array
 
     python::object make(python::object shape, python::object dtype)
     {
-        if (dtype == bool8) { return impl::make_typed<bool>(shape); }
-        else if (dtype == int8) { return impl::make_typed<int8_t>(shape); }
-        else if (dtype == int16) { return impl::make_typed<int16_t>(shape); }
-        else if (dtype == int32) { return impl::make_typed<int32_t>(shape); }
-        else if (dtype == int64) { return impl::make_typed<int16_t>(shape); }
-        else if (dtype == uint8) { return impl::make_typed<uint8_t>(shape); }
-        else if (dtype == uint16) { return impl::make_typed<uint16_t>(shape); }
-        else if (dtype == uint32) { return impl::make_typed<uint32_t>(shape); }
-        else if (dtype == uint64) { return impl::make_typed<uint64_t>(shape); }
-        else if (dtype == float32) { return impl::make_typed<float>(shape); }
-        else if (dtype == float64) { return impl::make_typed<double>(shape); }
-        else { throw std::invalid_argument("dtype"); }
+        if (dtype == bool8)
+        {
+            return impl::make_typed<bool>(shape);
+        }
+        else if (dtype == int8)
+        {
+            return impl::make_typed<int8_t>(shape);
+        }
+        else if (dtype == int16)
+        {
+            return impl::make_typed<int16_t>(shape);
+        }
+        else if (dtype == int32)
+        {
+            return impl::make_typed<int32_t>(shape);
+        }
+        else if (dtype == int64)
+        {
+            return impl::make_typed<int16_t>(shape);
+        }
+        else if (dtype == uint8)
+        {
+            return impl::make_typed<uint8_t>(shape);
+        }
+        else if (dtype == uint16)
+        {
+            return impl::make_typed<uint16_t>(shape);
+        }
+        else if (dtype == uint32)
+        {
+            return impl::make_typed<uint32_t>(shape);
+        }
+        else if (dtype == uint64)
+        {
+            return impl::make_typed<uint64_t>(shape);
+        }
+        else if (dtype == float32)
+        {
+            return impl::make_typed<float>(shape);
+        }
+        else if (dtype == float64)
+        {
+            return impl::make_typed<double>(shape);
+        }
+        else
+        {
+            throw std::invalid_argument("dtype");
+        }
     }
 
     //
@@ -109,15 +154,15 @@ namespace python_multi_array
     //  Example:
     //    x[2, 4] = 2.0
     //
-    template<class T, size_t N>
+    template <class T, size_t N>
     T getitem(shared_ptr<multi_array<T, N>> t, python::object idx);
 
-    template<class T, size_t N>
+    template <class T, size_t N>
     void setitem(shared_ptr<multi_array<T, N>> t, python::object idx, T value);
 
     namespace impl
     {
-        template<class T, size_t N>
+        template <class T, size_t N>
         T getitem_impl(shared_ptr<multi_array<T, N>> t, const size_t* s)
         {
             T* ptr = t->origin();
@@ -128,7 +173,7 @@ namespace python_multi_array
             return *ptr;
         }
 
-        template<class T, size_t N>
+        template <class T, size_t N>
         void setitem_impl(shared_ptr<multi_array<T, N>> t, const size_t* s, T value)
         {
             T* ptr = t->origin();
@@ -140,7 +185,7 @@ namespace python_multi_array
         }
     }
 
-    template<class T, size_t N>
+    template <class T, size_t N>
     T getitem(shared_ptr<multi_array<T, N>> t, python::object idx)
     {
         if (N == 1)
@@ -160,7 +205,7 @@ namespace python_multi_array
         return impl::getitem_impl(t, s);
     }
 
-    template<class T, size_t N>
+    template <class T, size_t N>
     void setitem(shared_ptr<multi_array<T, N>> t, python::object idx, T value)
     {
         if (N == 1)
@@ -187,7 +232,7 @@ namespace python_multi_array
     //
     //  This function resets every element of x with zero.
     //
-    template<class T, size_t N>
+    template <class T, size_t N>
     void reset(shared_ptr<multi_array<T, N>> t)
     {
         std::fill(t->origin(), t->origin() + t->num_elements(), 0);
@@ -201,7 +246,7 @@ namespace python_multi_array
     //          uint16, uint32, uint64, int8, int16, int32, int64, float32,
     //          float64, all defined in numpy.
     //
-    template<class T, size_t N>
+    template <class T, size_t N>
     python::object element(shared_ptr<multi_array<T, N>> t)
     {
         return python::numpy::dtype::get_builtin<T>();
@@ -213,21 +258,30 @@ namespace python_multi_array
     //
     //  return: the shape of the array.
     //
-    template<class T, size_t N>
+    template <class T, size_t N>
     python::object shape(shared_ptr<multi_array<T, N>> t)
     {
         const size_t* s = t->shape();
         switch (N)
         {
-            case 1: return python::make_tuple(s[0]);
-            case 2: return python::make_tuple(s[0], s[1]);
-            case 3: return python::make_tuple(s[0], s[1], s[2]);
-            case 4: return python::make_tuple(s[0], s[1], s[2], s[3]);
-            case 5: return python::make_tuple(s[0], s[1], s[2], s[3], s[4]);
-            case 6: return python::make_tuple(s[0], s[1], s[2], s[3], s[4], s[5]);
-            case 7: return python::make_tuple(s[0], s[1], s[2], s[3], s[4], s[5], s[6]);
-            case 8: return python::make_tuple(s[0], s[1], s[2], s[3], s[4], s[5], s[6], s[7]);
-            default: throw std::invalid_argument("this");
+        case 1:
+            return python::make_tuple(s[0]);
+        case 2:
+            return python::make_tuple(s[0], s[1]);
+        case 3:
+            return python::make_tuple(s[0], s[1], s[2]);
+        case 4:
+            return python::make_tuple(s[0], s[1], s[2], s[3]);
+        case 5:
+            return python::make_tuple(s[0], s[1], s[2], s[3], s[4]);
+        case 6:
+            return python::make_tuple(s[0], s[1], s[2], s[3], s[4], s[5]);
+        case 7:
+            return python::make_tuple(s[0], s[1], s[2], s[3], s[4], s[5], s[6]);
+        case 8:
+            return python::make_tuple(s[0], s[1], s[2], s[3], s[4], s[5], s[6], s[7]);
+        default:
+            throw std::invalid_argument("this");
         }
     }
 
@@ -237,7 +291,7 @@ namespace python_multi_array
     //
     //  return: the number of dimensions of the array.
     //
-    template<class T, size_t N>
+    template <class T, size_t N>
     size_t num_dimensions(shared_ptr<multi_array<T, N>>)
     {
         return N;
@@ -251,7 +305,7 @@ namespace python_multi_array
     //  example:
     //    It returns 8 for an array with shape (2, 4).
     //
-    template<class T, size_t N>
+    template <class T, size_t N>
     size_t num_elements(shared_ptr<multi_array<T, N>> t)
     {
         size_t n = 1;
@@ -268,7 +322,7 @@ namespace python_multi_array
     //
     //  return: a copy of the array stored in numpy.ndarray.
     //
-    template<class T, size_t N>
+    template <class T, size_t N>
     python::object get(shared_ptr<multi_array<T, N>> t)
     {
         size_t s[N];
@@ -278,14 +332,22 @@ namespace python_multi_array
         auto make_tuple_from_array = [](const size_t* a) {
             switch (N)
             {
-                case 1: return python::make_tuple(a[0]);
-                case 2: return python::make_tuple(a[0], a[1]);
-                case 3: return python::make_tuple(a[0], a[1], a[2]);
-                case 4: return python::make_tuple(a[0], a[1], a[2], a[3]);
-                case 5: return python::make_tuple(a[0], a[1], a[2], a[3], a[4]);
-                case 6: return python::make_tuple(a[0], a[1], a[2], a[3], a[4], a[5]);
-                case 7: return python::make_tuple(a[0], a[1], a[2], a[3], a[4], a[5], a[6]);
-                case 8: return python::make_tuple(a[0], a[1], a[2], a[3], a[4], a[5], a[6], a[7]);
+            case 1:
+                return python::make_tuple(a[0]);
+            case 2:
+                return python::make_tuple(a[0], a[1]);
+            case 3:
+                return python::make_tuple(a[0], a[1], a[2]);
+            case 4:
+                return python::make_tuple(a[0], a[1], a[2], a[3]);
+            case 5:
+                return python::make_tuple(a[0], a[1], a[2], a[3], a[4]);
+            case 6:
+                return python::make_tuple(a[0], a[1], a[2], a[3], a[4], a[5]);
+            case 7:
+                return python::make_tuple(a[0], a[1], a[2], a[3], a[4], a[5], a[6]);
+            case 8:
+                return python::make_tuple(a[0], a[1], a[2], a[3], a[4], a[5], a[6], a[7]);
             }
             throw std::invalid_argument("this");
         };
@@ -303,12 +365,12 @@ namespace python_multi_array
     //  nd.dtype may be different from x.element() but the values are implicitly
     //  converted to x.element().
     //
-    template<class T, size_t N>
+    template <class T, size_t N>
     void set(shared_ptr<multi_array<T, N>> t, python::numpy::ndarray nd);
 
     namespace impl
     {
-        template<class T, size_t N, class S>
+        template <class T, size_t N, class S>
         void set_typed(shared_ptr<multi_array<T, N>> t, python::numpy::ndarray nd)
         {
             if (N != nd.get_nd())
@@ -394,22 +456,58 @@ namespace python_multi_array
         }
     }
 
-    template<class T, size_t N>
+    template <class T, size_t N>
     void set(shared_ptr<multi_array<T, N>> t, python::numpy::ndarray nd)
     {
         python::numpy::dtype dt = nd.get_dtype();
-        if (dt == bool8) { impl::set_typed<T, N, bool>(t, nd); }
-        else if (dt == uint8) { impl::set_typed<T, N, uint8_t>(t, nd); }
-        else if (dt == uint16) { impl::set_typed<T, N, uint16_t>(t, nd); }
-        else if (dt == uint32) { impl::set_typed<T, N, uint32_t>(t, nd); }
-        else if (dt == uint64) { impl::set_typed<T, N, uint64_t>(t, nd); }
-        else if (dt == int8) { impl::set_typed<T, N, int8_t>(t, nd); }
-        else if (dt == int16) { impl::set_typed<T, N, int16_t>(t, nd); }
-        else if (dt == int32) { impl::set_typed<T, N, int32_t>(t, nd); }
-        else if (dt == int64) { impl::set_typed<T, N, int64_t>(t, nd); }
-        else if (dt == float32) { impl::set_typed<T, N, float>(t, nd); }
-        else if (dt == float64) { impl::set_typed<T, N, double>(t, nd); }
-        else { throw std::invalid_argument("nd"); }
+        if (dt == bool8)
+        {
+            impl::set_typed<T, N, bool>(t, nd);
+        }
+        else if (dt == uint8)
+        {
+            impl::set_typed<T, N, uint8_t>(t, nd);
+        }
+        else if (dt == uint16)
+        {
+            impl::set_typed<T, N, uint16_t>(t, nd);
+        }
+        else if (dt == uint32)
+        {
+            impl::set_typed<T, N, uint32_t>(t, nd);
+        }
+        else if (dt == uint64)
+        {
+            impl::set_typed<T, N, uint64_t>(t, nd);
+        }
+        else if (dt == int8)
+        {
+            impl::set_typed<T, N, int8_t>(t, nd);
+        }
+        else if (dt == int16)
+        {
+            impl::set_typed<T, N, int16_t>(t, nd);
+        }
+        else if (dt == int32)
+        {
+            impl::set_typed<T, N, int32_t>(t, nd);
+        }
+        else if (dt == int64)
+        {
+            impl::set_typed<T, N, int64_t>(t, nd);
+        }
+        else if (dt == float32)
+        {
+            impl::set_typed<T, N, float>(t, nd);
+        }
+        else if (dt == float64)
+        {
+            impl::set_typed<T, N, double>(t, nd);
+        }
+        else
+        {
+            throw std::invalid_argument("nd");
+        }
     }
 
     //
@@ -419,7 +517,7 @@ namespace python_multi_array
     class array_template
     {
     public:
-        template<class T, size_t N>
+        template <class T, size_t N>
         static void declare(const char* name)
         {
             python::class_<shared_ptr<multi_array<T, N>>>(name)

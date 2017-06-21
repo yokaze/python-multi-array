@@ -4,7 +4,7 @@ import sys
 from distutils.core import setup, Extension
 
 modules = []
-modules.append(['multi_array', 'source/python_multi_array.cpp'])
+modules.append(['multi_array', 'python_multi_array.cpp'])
 
 extensions = []
 for module in modules:

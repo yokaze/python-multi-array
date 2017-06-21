@@ -1,0 +1,10 @@
+AccessModifierOffset: -4
+AllowShortBlocksOnASingleLine: true
+AlwaysBreakTemplateDeclarations: true
+BasedOnStyle: LLVM
+BreakBeforeBraces: Allman
+ColumnLimit: 160
+DerivePointerAlignment: false
+IndentWidth: 4
+NamespaceIndentation: All
+PointerAlignment: Left
