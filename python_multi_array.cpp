@@ -203,6 +203,10 @@ namespace python_multi_array
             }
         }
         //  assume idx to be a list or a tuple
+        if (N != python::len(idx))
+        {
+            throw std::invalid_argument("idx");
+        }
         size_t s[N];
         for (size_t i = 0; i < N; ++i)
         {
@@ -230,6 +234,10 @@ namespace python_multi_array
             }
         }
         //  assume idx to be a list or a tuple
+        if (N != python::len(idx))
+        {
+            throw std::invalid_argument("idx");
+        }
         size_t s[N];
         for (size_t i = 0; i < N; ++i)
         {
