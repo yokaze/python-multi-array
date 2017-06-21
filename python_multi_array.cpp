@@ -155,87 +155,103 @@ namespace python_multi_array
     //    x[2, 4] = 2.0
     //
     template <class T, size_t N>
-    T getitem(shared_ptr<multi_array<T, N>> t, python::object idx);
+    T getitem(shared_ptr<multi_array<T, N>> This, python::object idx);
 
     template <class T, size_t N>
-    void setitem(shared_ptr<multi_array<T, N>> t, python::object idx, T value);
+    void setitem(shared_ptr<multi_array<T, N>> This, python::object idx, T value);
 
     namespace impl
     {
         template <class T, size_t N>
-        T getitem_impl(shared_ptr<multi_array<T, N>> t, const size_t* s)
+        T getitem_impl(shared_ptr<multi_array<T, N>> This, const size_t* s)
         {
-            T* ptr = t->origin();
+            T* ptr = This->origin();
             for (size_t i = 0; i < N; ++i)
             {
-                ptr += t->strides()[i] * s[i];
+                ptr += This->strides()[i] * s[i];
             }
             return *ptr;
         }
 
         template <class T, size_t N>
-        void setitem_impl(shared_ptr<multi_array<T, N>> t, const size_t* s, T value)
+        void setitem_impl(shared_ptr<multi_array<T, N>> This, const size_t* s, T value)
         {
-            T* ptr = t->origin();
+            T* ptr = This->origin();
             for (size_t i = 0; i < N; ++i)
             {
-                ptr += t->strides()[i] * s[i];
+                ptr += This->strides()[i] * s[i];
             }
             *ptr = value;
         }
     }
 
     template <class T, size_t N>
-    T getitem(shared_ptr<multi_array<T, N>> t, python::object idx)
+    T getitem(shared_ptr<multi_array<T, N>> This, python::object idx)
     {
+        if (This == nullptr)
+        {
+            throw std::invalid_argument("self");
+        }
         if (N == 1)
         {
+            // if N = 1, an integer value can be used for indexing
             python::extract<size_t> scalar_idx(idx);
             if (scalar_idx.check())
             {
                 size_t index = static_cast<size_t>(scalar_idx);
-                return impl::getitem_impl(t, &index);
+                return impl::getitem_impl(This, &index);
             }
         }
+        //  assume idx to be a list or a tuple
         size_t s[N];
         for (size_t i = 0; i < N; ++i)
         {
             s[i] = python::extract<size_t>(idx[i]);
         }
-        return impl::getitem_impl(t, s);
+        return impl::getitem_impl(This, s);
     }
 
     template <class T, size_t N>
-    void setitem(shared_ptr<multi_array<T, N>> t, python::object idx, T value)
+    void setitem(shared_ptr<multi_array<T, N>> This, python::object idx, T value)
     {
+        if (This == nullptr)
+        {
+            throw std::invalid_argument("self");
+        }
         if (N == 1)
         {
+            // if N = 1, an integer value can be used for indexing
             python::extract<size_t> scalar_idx(idx);
             if (scalar_idx.check())
             {
                 size_t index = static_cast<size_t>(scalar_idx);
-                impl::setitem_impl(t, &index, value);
+                impl::setitem_impl(This, &index, value);
                 return;
             }
         }
+        //  assume idx to be a list or a tuple
         size_t s[N];
         for (size_t i = 0; i < N; ++i)
         {
             s[i] = python::extract<size_t>(idx[i]);
         }
-        impl::setitem_impl(t, s, value);
+        impl::setitem_impl(This, s, value);
     }
 
     //
     //  [Python]
     //  x.reset()
     //
-    //  This function resets every element of x with zero.
+    //  This function resets every elements of the array with zero.
     //
     template <class T, size_t N>
-    void reset(shared_ptr<multi_array<T, N>> t)
+    void reset(shared_ptr<multi_array<T, N>> This)
     {
-        std::fill(t->origin(), t->origin() + t->num_elements(), 0);
+        if (This == nullptr)
+        {
+            throw std::invalid_argument("self");
+        }
+        std::fill(This->origin(), This->origin() + This->num_elements(), 0);
     }
 
     //
@@ -247,8 +263,12 @@ namespace python_multi_array
     //          float64, all defined in numpy.
     //
     template <class T, size_t N>
-    python::object element(shared_ptr<multi_array<T, N>> t)
+    python::object element(shared_ptr<multi_array<T, N>> This)
     {
+        if (This == nullptr)
+        {
+            throw std::invalid_argument("self");
+        }
         return python::numpy::dtype::get_builtin<T>();
     }
 
@@ -259,9 +279,13 @@ namespace python_multi_array
     //  return: the shape of the array.
     //
     template <class T, size_t N>
-    python::object shape(shared_ptr<multi_array<T, N>> t)
+    python::object shape(shared_ptr<multi_array<T, N>> This)
     {
-        const size_t* s = t->shape();
+        if (This == nullptr)
+        {
+            throw std::invalid_argument("self");
+        }
+        const size_t* s = This->shape();
         switch (N)
         {
         case 1:
@@ -281,7 +305,7 @@ namespace python_multi_array
         case 8:
             return python::make_tuple(s[0], s[1], s[2], s[3], s[4], s[5], s[6], s[7]);
         default:
-            throw std::invalid_argument("this");
+            throw std::invalid_argument("self");
         }
     }
 
@@ -292,8 +316,12 @@ namespace python_multi_array
     //  return: the number of dimensions of the array.
     //
     template <class T, size_t N>
-    size_t num_dimensions(shared_ptr<multi_array<T, N>>)
+    size_t num_dimensions(shared_ptr<multi_array<T, N>> This)
     {
+        if (This == nullptr)
+        {
+            throw std::invalid_argument("self");
+        }
         return N;
     }
 
@@ -306,12 +334,16 @@ namespace python_multi_array
     //    It returns 8 for an array with shape (2, 4).
     //
     template <class T, size_t N>
-    size_t num_elements(shared_ptr<multi_array<T, N>> t)
+    size_t num_elements(shared_ptr<multi_array<T, N>> This)
     {
+        if (This == nullptr)
+        {
+            throw std::invalid_argument("self");
+        }
         size_t n = 1;
         for (size_t i = 0; i < N; ++i)
         {
-            n *= t->shape()[i];
+            n *= This->shape()[i];
         }
         return n;
     }
@@ -323,12 +355,16 @@ namespace python_multi_array
     //  return: a copy of the array stored in numpy.ndarray.
     //
     template <class T, size_t N>
-    python::object get(shared_ptr<multi_array<T, N>> t)
+    python::object get(shared_ptr<multi_array<T, N>> This)
     {
+        if (This == nullptr)
+        {
+            throw std::invalid_argument("self");
+        }
         size_t s[N];
         size_t d[N];
-        std::copy(t->shape(), t->shape() + N, s);
-        std::transform(t->strides(), t->strides() + N, d, [](auto input) { return input * sizeof(T); });
+        std::copy(This->shape(), This->shape() + N, s);
+        std::transform(This->strides(), This->strides() + N, d, [](auto input) { return input * sizeof(T); });
         auto make_tuple_from_array = [](const size_t* a) {
             switch (N)
             {
@@ -354,7 +390,7 @@ namespace python_multi_array
         python::numpy::dtype dt = python::numpy::dtype::get_builtin<T>();
         python::tuple shape = make_tuple_from_array(s);
         python::tuple strides = make_tuple_from_array(d);
-        return boost::python::numpy::from_data(t->origin(), dt, shape, strides, boost::python::object());
+        return boost::python::numpy::from_data(This->origin(), dt, shape, strides, boost::python::object());
     }
 
     //
@@ -366,12 +402,12 @@ namespace python_multi_array
     //  converted to x.element().
     //
     template <class T, size_t N>
-    void set(shared_ptr<multi_array<T, N>> t, python::numpy::ndarray nd);
+    void set(shared_ptr<multi_array<T, N>> This, python::numpy::ndarray nd);
 
     namespace impl
     {
         template <class T, size_t N, class S>
-        void set_typed(shared_ptr<multi_array<T, N>> t, python::numpy::ndarray nd)
+        void set_typed(shared_ptr<multi_array<T, N>> This, python::numpy::ndarray nd)
         {
             if (N != nd.get_nd())
             {
@@ -380,11 +416,11 @@ namespace python_multi_array
 
             size_t s[8];
             std::fill(std::begin(s), std::end(s), 0);
-            std::copy(t->shape(), t->shape() + N, s);
+            std::copy(This->shape(), This->shape() + N, s);
 
             size_t dt[8];
             std::fill(std::begin(dt), std::end(dt), 0);
-            std::copy(t->strides(), t->strides() + N, dt);
+            std::copy(This->strides(), This->strides() + N, dt);
 
             size_t dnd[8];
             std::fill(std::begin(dnd), std::end(dnd), 0);
@@ -402,7 +438,7 @@ namespace python_multi_array
                 }
             }
 
-            T* pt = t->origin();
+            T* pt = This->origin();
             const S* pnd = reinterpret_cast<S*>(nd.get_data());
 
             for (size_t i0 = 0; i0 < s[0]; ++i0)
@@ -457,52 +493,56 @@ namespace python_multi_array
     }
 
     template <class T, size_t N>
-    void set(shared_ptr<multi_array<T, N>> t, python::numpy::ndarray nd)
+    void set(shared_ptr<multi_array<T, N>> This, python::numpy::ndarray nd)
     {
+        if (This == nullptr)
+        {
+            throw std::invalid_argument("self");
+        }
         python::numpy::dtype dt = nd.get_dtype();
         if (dt == bool8)
         {
-            impl::set_typed<T, N, bool>(t, nd);
+            impl::set_typed<T, N, bool>(This, nd);
         }
         else if (dt == uint8)
         {
-            impl::set_typed<T, N, uint8_t>(t, nd);
+            impl::set_typed<T, N, uint8_t>(This, nd);
         }
         else if (dt == uint16)
         {
-            impl::set_typed<T, N, uint16_t>(t, nd);
+            impl::set_typed<T, N, uint16_t>(This, nd);
         }
         else if (dt == uint32)
         {
-            impl::set_typed<T, N, uint32_t>(t, nd);
+            impl::set_typed<T, N, uint32_t>(This, nd);
         }
         else if (dt == uint64)
         {
-            impl::set_typed<T, N, uint64_t>(t, nd);
+            impl::set_typed<T, N, uint64_t>(This, nd);
         }
         else if (dt == int8)
         {
-            impl::set_typed<T, N, int8_t>(t, nd);
+            impl::set_typed<T, N, int8_t>(This, nd);
         }
         else if (dt == int16)
         {
-            impl::set_typed<T, N, int16_t>(t, nd);
+            impl::set_typed<T, N, int16_t>(This, nd);
         }
         else if (dt == int32)
         {
-            impl::set_typed<T, N, int32_t>(t, nd);
+            impl::set_typed<T, N, int32_t>(This, nd);
         }
         else if (dt == int64)
         {
-            impl::set_typed<T, N, int64_t>(t, nd);
+            impl::set_typed<T, N, int64_t>(This, nd);
         }
         else if (dt == float32)
         {
-            impl::set_typed<T, N, float>(t, nd);
+            impl::set_typed<T, N, float>(This, nd);
         }
         else if (dt == float64)
         {
-            impl::set_typed<T, N, double>(t, nd);
+            impl::set_typed<T, N, double>(This, nd);
         }
         else
         {
