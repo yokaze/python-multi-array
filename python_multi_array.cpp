@@ -147,18 +147,18 @@ namespace python_multi_array
 
     //
     //  [Python]
-    //  T x[idx]
-    //  x[idx] = T
+    //  T x[index]
+    //  x[index] = T
     //
     //  get and set one element via index operator.
     //  Example:
     //    x[2, 4] = 2.0
     //
     template <class T, size_t N>
-    T getitem(const shared_ptr<multi_array<T, N>>& This, python::object idx);
+    T getitem(const shared_ptr<multi_array<T, N>>& This, python::object index);
 
     template <class T, size_t N>
-    void setitem(const shared_ptr<multi_array<T, N>>& This, python::object idx, T value);
+    void setitem(const shared_ptr<multi_array<T, N>>& This, python::object index, T value);
 
     namespace impl
     {
@@ -194,7 +194,7 @@ namespace python_multi_array
     }
 
     template <class T, size_t N>
-    T getitem(const shared_ptr<multi_array<T, N>>& This, python::object idx)
+    T getitem(const shared_ptr<multi_array<T, N>>& This, python::object index)
     {
         if (This == nullptr)
         {
@@ -203,28 +203,28 @@ namespace python_multi_array
         if (N == 1)
         {
             // if N = 1, an integer value can be used for indexing
-            python::extract<size_t> scalar_idx(idx);
-            if (scalar_idx.check())
+            python::extract<size_t> scalar_index(index);
+            if (scalar_index.check())
             {
-                size_t index = static_cast<size_t>(scalar_idx);
+                size_t index = static_cast<size_t>(scalar_index);
                 return impl::getitem_impl(This, &index);
             }
         }
-        //  assume idx to be a list or a tuple
-        if (N != python::len(idx))
+        //  assume index to be a list or a tuple
+        if (N != python::len(index))
         {
             throw std::invalid_argument("index");
         }
         size_t s[N];
         for (size_t i = 0; i < N; ++i)
         {
-            s[i] = python::extract<size_t>(idx[i]);
+            s[i] = python::extract<size_t>(index[i]);
         }
         return impl::getitem_impl(This, s);
     }
 
     template <class T, size_t N>
-    void setitem(const shared_ptr<multi_array<T, N>>& This, python::object idx, T value)
+    void setitem(const shared_ptr<multi_array<T, N>>& This, python::object index, T value)
     {
         if (This == nullptr)
         {
@@ -233,23 +233,23 @@ namespace python_multi_array
         if (N == 1)
         {
             // if N = 1, an integer value can be used for indexing
-            python::extract<size_t> scalar_idx(idx);
-            if (scalar_idx.check())
+            python::extract<size_t> scalar_index(index);
+            if (scalar_index.check())
             {
-                size_t index = static_cast<size_t>(scalar_idx);
+                size_t index = static_cast<size_t>(scalar_index);
                 impl::setitem_impl(This, &index, value);
                 return;
             }
         }
-        //  assume idx to be a list or a tuple
-        if (N != python::len(idx))
+        //  assume index to be a list or a tuple
+        if (N != python::len(index))
         {
             throw std::invalid_argument("index");
         }
         size_t s[N];
         for (size_t i = 0; i < N; ++i)
         {
-            s[i] = python::extract<size_t>(idx[i]);
+            s[i] = python::extract<size_t>(index[i]);
         }
         impl::setitem_impl(This, s, value);
     }
