@@ -168,6 +168,10 @@ namespace python_multi_array
             T* ptr = This->origin();
             for (size_t i = 0; i < N; ++i)
             {
+                if (This->shape()[i] <= s[i])
+                {
+                    throw std::invalid_argument("index");
+                }
                 ptr += This->strides()[i] * s[i];
             }
             return *ptr;
@@ -179,6 +183,10 @@ namespace python_multi_array
             T* ptr = This->origin();
             for (size_t i = 0; i < N; ++i)
             {
+                if (This->shape()[i] <= s[i])
+                {
+                    throw std::invalid_argument("index");
+                }
                 ptr += This->strides()[i] * s[i];
             }
             *ptr = value;
@@ -205,7 +213,7 @@ namespace python_multi_array
         //  assume idx to be a list or a tuple
         if (N != python::len(idx))
         {
-            throw std::invalid_argument("idx");
+            throw std::invalid_argument("index");
         }
         size_t s[N];
         for (size_t i = 0; i < N; ++i)
@@ -236,7 +244,7 @@ namespace python_multi_array
         //  assume idx to be a list or a tuple
         if (N != python::len(idx))
         {
-            throw std::invalid_argument("idx");
+            throw std::invalid_argument("index");
         }
         size_t s[N];
         for (size_t i = 0; i < N; ++i)
@@ -679,6 +687,7 @@ BOOST_PYTHON_MODULE(multi_array)
 
     def("make", make);
 
+    //  define aliases of numpy data types
     python::scope This;
     This.attr("bool8") = bool8;
     This.attr("uint8") = uint8;
