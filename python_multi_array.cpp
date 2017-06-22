@@ -155,15 +155,15 @@ namespace python_multi_array
     //    x[2, 4] = 2.0
     //
     template <class T, size_t N>
-    T getitem(shared_ptr<multi_array<T, N>> This, python::object idx);
+    T getitem(const shared_ptr<multi_array<T, N>>& This, python::object idx);
 
     template <class T, size_t N>
-    void setitem(shared_ptr<multi_array<T, N>> This, python::object idx, T value);
+    void setitem(const shared_ptr<multi_array<T, N>>& This, python::object idx, T value);
 
     namespace impl
     {
         template <class T, size_t N>
-        T getitem_impl(shared_ptr<multi_array<T, N>> This, const size_t* s)
+        T getitem_impl(const shared_ptr<multi_array<T, N>>& This, const size_t* s)
         {
             T* ptr = This->origin();
             for (size_t i = 0; i < N; ++i)
@@ -178,7 +178,7 @@ namespace python_multi_array
         }
 
         template <class T, size_t N>
-        void setitem_impl(shared_ptr<multi_array<T, N>> This, const size_t* s, T value)
+        void setitem_impl(const shared_ptr<multi_array<T, N>>& This, const size_t* s, T value)
         {
             T* ptr = This->origin();
             for (size_t i = 0; i < N; ++i)
@@ -194,7 +194,7 @@ namespace python_multi_array
     }
 
     template <class T, size_t N>
-    T getitem(shared_ptr<multi_array<T, N>> This, python::object idx)
+    T getitem(const shared_ptr<multi_array<T, N>>& This, python::object idx)
     {
         if (This == nullptr)
         {
@@ -224,7 +224,7 @@ namespace python_multi_array
     }
 
     template <class T, size_t N>
-    void setitem(shared_ptr<multi_array<T, N>> This, python::object idx, T value)
+    void setitem(const shared_ptr<multi_array<T, N>>& This, python::object idx, T value)
     {
         if (This == nullptr)
         {
@@ -261,7 +261,7 @@ namespace python_multi_array
     //  This function resets every elements of the array with zero.
     //
     template <class T, size_t N>
-    void reset(shared_ptr<multi_array<T, N>> This)
+    void reset(const shared_ptr<multi_array<T, N>>& This)
     {
         if (This == nullptr)
         {
@@ -279,7 +279,7 @@ namespace python_multi_array
     //          float64, all defined in numpy.
     //
     template <class T, size_t N>
-    python::object element(shared_ptr<multi_array<T, N>> This)
+    python::object element(const shared_ptr<multi_array<T, N>>& This)
     {
         if (This == nullptr)
         {
@@ -295,7 +295,7 @@ namespace python_multi_array
     //  return: the shape of the array.
     //
     template <class T, size_t N>
-    python::object shape(shared_ptr<multi_array<T, N>> This)
+    python::object shape(const shared_ptr<multi_array<T, N>>& This)
     {
         if (This == nullptr)
         {
@@ -332,7 +332,7 @@ namespace python_multi_array
     //  return: the number of dimensions of the array.
     //
     template <class T, size_t N>
-    size_t num_dimensions(shared_ptr<multi_array<T, N>> This)
+    size_t num_dimensions(const shared_ptr<multi_array<T, N>>& This)
     {
         if (This == nullptr)
         {
@@ -350,7 +350,7 @@ namespace python_multi_array
     //    It returns 8 for an array with shape (2, 4).
     //
     template <class T, size_t N>
-    size_t num_elements(shared_ptr<multi_array<T, N>> This)
+    size_t num_elements(const shared_ptr<multi_array<T, N>>& This)
     {
         if (This == nullptr)
         {
@@ -371,7 +371,7 @@ namespace python_multi_array
     //  return: a copy of the array stored in numpy.ndarray.
     //
     template <class T, size_t N>
-    python::object get(shared_ptr<multi_array<T, N>> This)
+    python::object get(const shared_ptr<multi_array<T, N>>& This)
     {
         if (This == nullptr)
         {
@@ -418,7 +418,7 @@ namespace python_multi_array
     //  converted to x.element().
     //
     template <class T, size_t N>
-    void set(shared_ptr<multi_array<T, N>> This, python::numpy::ndarray nd);
+    void set(const shared_ptr<multi_array<T, N>>& This, python::numpy::ndarray nd);
 
     namespace impl
     {
@@ -509,7 +509,7 @@ namespace python_multi_array
     }
 
     template <class T, size_t N>
-    void set(shared_ptr<multi_array<T, N>> This, python::numpy::ndarray nd)
+    void set(const shared_ptr<multi_array<T, N>>& This, python::numpy::ndarray nd)
     {
         if (This == nullptr)
         {
