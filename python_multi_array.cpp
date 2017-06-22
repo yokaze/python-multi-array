@@ -356,12 +356,7 @@ namespace python_multi_array
         {
             throw std::invalid_argument("self");
         }
-        size_t n = 1;
-        for (size_t i = 0; i < N; ++i)
-        {
-            n *= This->shape()[i];
-        }
-        return n;
+        return This->num_elements();
     }
 
     //
