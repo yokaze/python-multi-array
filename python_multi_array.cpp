@@ -53,24 +53,24 @@ namespace python_multi_array
         {
             switch (ndim)
             {
-            case 1:
-                return python::object(std::make_shared<multi_array<T, 1>>(extents[s[0]]));
-            case 2:
-                return python::object(std::make_shared<multi_array<T, 2>>(extents[s[0]][s[1]]));
-            case 3:
-                return python::object(std::make_shared<multi_array<T, 3>>(extents[s[0]][s[1]][s[2]]));
-            case 4:
-                return python::object(std::make_shared<multi_array<T, 4>>(extents[s[0]][s[1]][s[2]][s[3]]));
-            case 5:
-                return python::object(std::make_shared<multi_array<T, 5>>(extents[s[0]][s[1]][s[2]][s[3]][s[4]]));
-            case 6:
-                return python::object(std::make_shared<multi_array<T, 6>>(extents[s[0]][s[1]][s[2]][s[3]][s[4]][s[5]]));
-            case 7:
-                return python::object(std::make_shared<multi_array<T, 7>>(extents[s[0]][s[1]][s[2]][s[3]][s[4]][s[5]][s[6]]));
-            case 8:
-                return python::object(std::make_shared<multi_array<T, 8>>(extents[s[0]][s[1]][s[2]][s[3]][s[4]][s[5]][s[6]][s[7]]));
-            default:
-                throw std::invalid_argument("shape");
+                case 1:
+                    return python::object(std::make_shared<multi_array<T, 1>>(extents[s[0]]));
+                case 2:
+                    return python::object(std::make_shared<multi_array<T, 2>>(extents[s[0]][s[1]]));
+                case 3:
+                    return python::object(std::make_shared<multi_array<T, 3>>(extents[s[0]][s[1]][s[2]]));
+                case 4:
+                    return python::object(std::make_shared<multi_array<T, 4>>(extents[s[0]][s[1]][s[2]][s[3]]));
+                case 5:
+                    return python::object(std::make_shared<multi_array<T, 5>>(extents[s[0]][s[1]][s[2]][s[3]][s[4]]));
+                case 6:
+                    return python::object(std::make_shared<multi_array<T, 6>>(extents[s[0]][s[1]][s[2]][s[3]][s[4]][s[5]]));
+                case 7:
+                    return python::object(std::make_shared<multi_array<T, 7>>(extents[s[0]][s[1]][s[2]][s[3]][s[4]][s[5]][s[6]]));
+                case 8:
+                    return python::object(std::make_shared<multi_array<T, 8>>(extents[s[0]][s[1]][s[2]][s[3]][s[4]][s[5]][s[6]][s[7]]));
+                default:
+                    throw std::invalid_argument("shape");
             }
         }
 
@@ -304,24 +304,24 @@ namespace python_multi_array
         const size_t* s = This->shape();
         switch (N)
         {
-        case 1:
-            return python::make_tuple(s[0]);
-        case 2:
-            return python::make_tuple(s[0], s[1]);
-        case 3:
-            return python::make_tuple(s[0], s[1], s[2]);
-        case 4:
-            return python::make_tuple(s[0], s[1], s[2], s[3]);
-        case 5:
-            return python::make_tuple(s[0], s[1], s[2], s[3], s[4]);
-        case 6:
-            return python::make_tuple(s[0], s[1], s[2], s[3], s[4], s[5]);
-        case 7:
-            return python::make_tuple(s[0], s[1], s[2], s[3], s[4], s[5], s[6]);
-        case 8:
-            return python::make_tuple(s[0], s[1], s[2], s[3], s[4], s[5], s[6], s[7]);
-        default:
-            throw std::invalid_argument("self");
+            case 1:
+                return python::make_tuple(s[0]);
+            case 2:
+                return python::make_tuple(s[0], s[1]);
+            case 3:
+                return python::make_tuple(s[0], s[1], s[2]);
+            case 4:
+                return python::make_tuple(s[0], s[1], s[2], s[3]);
+            case 5:
+                return python::make_tuple(s[0], s[1], s[2], s[3], s[4]);
+            case 6:
+                return python::make_tuple(s[0], s[1], s[2], s[3], s[4], s[5]);
+            case 7:
+                return python::make_tuple(s[0], s[1], s[2], s[3], s[4], s[5], s[6]);
+            case 8:
+                return python::make_tuple(s[0], s[1], s[2], s[3], s[4], s[5], s[6], s[7]);
+            default:
+                throw std::invalid_argument("self");
         }
     }
 
@@ -379,22 +379,22 @@ namespace python_multi_array
         auto make_tuple_from_array = [](const size_t* a) {
             switch (N)
             {
-            case 1:
-                return python::make_tuple(a[0]);
-            case 2:
-                return python::make_tuple(a[0], a[1]);
-            case 3:
-                return python::make_tuple(a[0], a[1], a[2]);
-            case 4:
-                return python::make_tuple(a[0], a[1], a[2], a[3]);
-            case 5:
-                return python::make_tuple(a[0], a[1], a[2], a[3], a[4]);
-            case 6:
-                return python::make_tuple(a[0], a[1], a[2], a[3], a[4], a[5]);
-            case 7:
-                return python::make_tuple(a[0], a[1], a[2], a[3], a[4], a[5], a[6]);
-            case 8:
-                return python::make_tuple(a[0], a[1], a[2], a[3], a[4], a[5], a[6], a[7]);
+                case 1:
+                    return python::make_tuple(a[0]);
+                case 2:
+                    return python::make_tuple(a[0], a[1]);
+                case 3:
+                    return python::make_tuple(a[0], a[1], a[2]);
+                case 4:
+                    return python::make_tuple(a[0], a[1], a[2], a[3]);
+                case 5:
+                    return python::make_tuple(a[0], a[1], a[2], a[3], a[4]);
+                case 6:
+                    return python::make_tuple(a[0], a[1], a[2], a[3], a[4], a[5]);
+                case 7:
+                    return python::make_tuple(a[0], a[1], a[2], a[3], a[4], a[5], a[6]);
+                case 8:
+                    return python::make_tuple(a[0], a[1], a[2], a[3], a[4], a[5], a[6], a[7]);
             }
             throw std::invalid_argument("this");
         };
