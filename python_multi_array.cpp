@@ -41,7 +41,7 @@ namespace python_multi_array
 {
     namespace impl
     {
-        size_t extract_size(python::object obj)
+        size_t extract_size_t(python::object obj)
         {
             //  numpy.int32 cannot be converted directly into C++ integer types.
             //  therefore, the value is first converted to python integer type
@@ -49,19 +49,19 @@ namespace python_multi_array
             return python::extract<size_t>(python_int(obj));
         }
 
-        vector<size_t> extract_shape(python::object shape)
+        vector<size_t> extract_index(python::object index)
         {
-            if (python::extract<bool>(python_hasattr(shape, "__len__")) == false)
+            if (python::extract<bool>(python_hasattr(index, "__len__")) == false)
             {
-                return { extract_size(shape) };
+                return { extract_size_t(index) };
             }
             else
             {
                 vector<size_t> ret;
-                size_t length = python::len(shape);
+                size_t length = python::len(index);
                 for (size_t i = 0; i < length; ++i)
                 {
-                    ret.push_back(extract_size(shape[i]));
+                    ret.push_back(extract_size_t(index[i]));
                 }
                 return ret;
             }
@@ -113,7 +113,7 @@ namespace python_multi_array
         template <class T>
         python::object make_typed(python::object shape)
         {
-            vector<size_t> shape_vector = extract_shape(shape);
+            vector<size_t> shape_vector = extract_index(shape);
             return make_typed_sized<T>(shape_vector.data(), shape_vector.size());
         }
     }
@@ -180,103 +180,54 @@ namespace python_multi_array
     //    x[2, 4] = 2.0
     //
     template <class T, size_t N>
-    T getitem(const shared_ptr<multi_array<T, N>>& This, python::object index);
-
-    template <class T, size_t N>
-    void setitem(const shared_ptr<multi_array<T, N>>& This, python::object index, T value);
-
-    namespace impl
-    {
-        template <class T, size_t N>
-        T getitem_impl(const shared_ptr<multi_array<T, N>>& This, const size_t* s)
-        {
-            T* ptr = This->origin();
-            for (size_t i = 0; i < N; ++i)
-            {
-                if (This->shape()[i] <= s[i])
-                {
-                    throw std::invalid_argument("index");
-                }
-                ptr += This->strides()[i] * s[i];
-            }
-            return *ptr;
-        }
-
-        template <class T, size_t N>
-        void setitem_impl(const shared_ptr<multi_array<T, N>>& This, const size_t* s, T value)
-        {
-            T* ptr = This->origin();
-            for (size_t i = 0; i < N; ++i)
-            {
-                if (This->shape()[i] <= s[i])
-                {
-                    throw std::invalid_argument("index");
-                }
-                ptr += This->strides()[i] * s[i];
-            }
-            *ptr = value;
-        }
-    }
-
-    template <class T, size_t N>
-    T getitem(const shared_ptr<multi_array<T, N>>& This, python::object index)
+    T getitem(const shared_ptr<multi_array<T, N>>& This, python::object index_object)
     {
         if (This == nullptr)
         {
             throw std::invalid_argument("self");
         }
-        if (N == 1)
+        vector<size_t> index = impl::extract_index(index_object);
+        if (index.size() != N)
         {
-            // if N = 1, an integer value can be used for indexing
-            python::extract<size_t> scalar_index(index);
-            if (scalar_index.check())
-            {
-                size_t index = static_cast<size_t>(scalar_index);
-                return impl::getitem_impl(This, &index);
-            }
-        }
-        //  assume index to be a list or a tuple
-        if (N != python::len(index))
-        {
+            //  index has an invalid dimensionality
             throw std::invalid_argument("index");
         }
-        size_t s[N];
+        T* ptr = This->origin();
         for (size_t i = 0; i < N; ++i)
         {
-            s[i] = python::extract<size_t>(index[i]);
+            if (This->shape()[i] <= index[i])
+            {
+                //  index exceeds boundary
+                throw std::invalid_argument("index");
+            }
+            ptr += This->strides()[i] * index[i];
         }
-        return impl::getitem_impl(This, s);
+        return *ptr;
     }
 
     template <class T, size_t N>
-    void setitem(const shared_ptr<multi_array<T, N>>& This, python::object index, T value)
+    void setitem(const shared_ptr<multi_array<T, N>>& This, python::object index_object, T value)
     {
         if (This == nullptr)
         {
             throw std::invalid_argument("self");
         }
-        if (N == 1)
+        vector<size_t> index = impl::extract_index(index_object);
+        if (index.size() != N)
         {
-            // if N = 1, an integer value can be used for indexing
-            python::extract<size_t> scalar_index(index);
-            if (scalar_index.check())
-            {
-                size_t index = static_cast<size_t>(scalar_index);
-                impl::setitem_impl(This, &index, value);
-                return;
-            }
-        }
-        //  assume index to be a list or a tuple
-        if (N != python::len(index))
-        {
+            //  index has an invalid dimensionality
             throw std::invalid_argument("index");
         }
-        size_t s[N];
+        T* ptr = This->origin();
         for (size_t i = 0; i < N; ++i)
         {
-            s[i] = python::extract<size_t>(index[i]);
+            if (This->shape()[i] <= index[i])
+            {
+                throw std::invalid_argument("index");
+            }
+            ptr += This->strides()[i] * index[i];
         }
-        impl::setitem_impl(This, s, value);
+        *ptr = value;
     }
 
     //
