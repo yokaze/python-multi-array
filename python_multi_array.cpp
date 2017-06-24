@@ -10,12 +10,19 @@
 #include <boost/python/numpy.hpp>
 #include <memory>
 #include <stdint.h>
+#include <vector>
 
 //  Using from python is avoided because many definitions conflict with names from std.
 namespace python = boost::python;
 using boost::extents;
 using boost::multi_array;
 using std::shared_ptr;
+using std::vector;
+
+static python::object main_module = python::import("__main__");
+static python::object builtin_module = main_module.attr("__builtins__");
+static python::object python_hasattr = builtin_module.attr("hasattr");
+static python::object python_int = builtin_module.attr("int");
 
 static python::object numpy = python::import("numpy");
 static python::object bool8 = numpy.attr("bool8");
@@ -32,6 +39,35 @@ static python::object float64 = numpy.attr("float64");
 
 namespace python_multi_array
 {
+    namespace impl
+    {
+        size_t extract_size(python::object obj)
+        {
+            //  numpy.int32 cannot be converted directly into C++ integer types.
+            //  therefore, the value is first converted to python integer type
+            //  and then converted to size_t.
+            return python::extract<size_t>(python_int(obj));
+        }
+
+        vector<size_t> extract_shape(python::object shape)
+        {
+            if (python::extract<bool>(python_hasattr(shape, "__len__")) == false)
+            {
+                return { extract_size(shape) };
+            }
+            else
+            {
+                vector<size_t> ret;
+                size_t length = python::len(shape);
+                for (size_t i = 0; i < length; ++i)
+                {
+                    ret.push_back(extract_size(shape[i]));
+                }
+                return ret;
+            }
+        }
+    }
+
     //
     //  [Python]
     //  [array_type] multi_array.make(shape, dtype)
@@ -77,19 +113,8 @@ namespace python_multi_array
         template <class T>
         python::object make_typed(python::object shape)
         {
-            python::extract<size_t> scalar_shape(shape);
-            if (scalar_shape.check())
-            {
-                size_t shape = static_cast<size_t>(scalar_shape);
-                return make_typed_sized<T>(&shape, 1);
-            }
-            size_t ndim = python::len(shape);
-            size_t s[ndim];
-            for (size_t i = 0; i < ndim; ++i)
-            {
-                s[i] = python::extract<size_t>(shape[i]);
-            }
-            return make_typed_sized<T>(s, ndim);
+            vector<size_t> shape_vector = extract_shape(shape);
+            return make_typed_sized<T>(shape_vector.data(), shape_vector.size());
         }
     }
 
