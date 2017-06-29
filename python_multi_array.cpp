@@ -138,7 +138,7 @@ namespace python_multi_array
         }
         else if (dtype == int64)
         {
-            return impl::make_typed<int16_t>(shape);
+            return impl::make_typed<int64_t>(shape);
         }
         else if (dtype == uint8)
         {
