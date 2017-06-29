@@ -400,79 +400,42 @@ namespace python_multi_array
             {
                 throw std::invalid_argument("nd");
             }
-
-            size_t s[8];
-            std::fill(std::begin(s), std::end(s), 0);
+            size_t s[N];
             std::copy(This->shape(), This->shape() + N, s);
+            size_t ix[N];
+            std::fill(ix, ix + N, 0);
 
-            size_t dt[8];
-            std::fill(std::begin(dt), std::end(dt), 0);
-            std::copy(This->strides(), This->strides() + N, dt);
+            size_t boost_strides[N];
+            std::copy(This->strides(), This->strides() + N, boost_strides);
 
-            size_t dnd[8];
-            std::fill(std::begin(dnd), std::end(dnd), 0);
-            std::transform(nd.get_strides(), nd.get_strides() + N, dnd, [](auto input) { return input / sizeof(S); });
+            size_t numpy_strides[N];
+            std::transform(nd.get_strides(), nd.get_strides() + N, numpy_strides, [](auto input) { return input / sizeof(S); });
 
-            for (size_t i = 0; i < N; ++i)
+            T* p_boost_origin = This->origin();
+            const S* p_numpy_origin = reinterpret_cast<S*>(nd.get_data());
+
+            while (ix[0] < s[0])
             {
-                if (nd.get_shape()[i] == 1)
+                T* p_boost_element = p_boost_origin;
+                const S* p_numpy_element = p_numpy_origin;
+                for (size_t d = 0; d < (N - 1); ++d)
                 {
-                    dnd[i] = 0;
+                    p_boost_element += ix[d] * boost_strides[d];
+                    p_numpy_element += ix[d] * numpy_strides[d];
                 }
-                else if (s[i] != nd.get_shape()[i])
+                while (ix[N - 1] < s[N - 1])
                 {
-                    throw std::invalid_argument("nd");
+                    *p_boost_element = static_cast<T>(*p_numpy_element);
+                    p_boost_element += boost_strides[N - 1];
+                    p_numpy_element += numpy_strides[N - 1];
+                    ++(ix[N - 1]);
                 }
-            }
-
-            T* pt = This->origin();
-            const S* pnd = reinterpret_cast<S*>(nd.get_data());
-
-            for (size_t i0 = 0; i0 < s[0]; ++i0)
-            {
-                T* pt1 = pt + i0 * dt[0];
-                const S* pnd1 = pnd + i0 * dnd[0];
-                *pt1 = static_cast<T>(*pnd1);
-                for (size_t i1 = 1; i1 < s[1]; ++i1)
+                for (size_t d = N - 1; d > 0; --d)
                 {
-                    T* pt2 = pt1 + i1 * dt[1];
-                    const S* pnd2 = pnd1 + i1 * dnd[1];
-                    *pt2 = static_cast<T>(*pnd2);
-                    for (size_t i2 = 1; i2 < s[2]; ++i2)
+                    if (s[d] <= ix[d])
                     {
-                        T* pt3 = pt2 + i2 * dt[2];
-                        const S* pnd3 = pnd2 + i2 * dnd[2];
-                        *pt3 = static_cast<T>(*pnd3);
-                        for (size_t i3 = 1; i3 < s[3]; ++i3)
-                        {
-                            T* pt4 = pt3 + i3 * dt[3];
-                            const S* pnd4 = pnd3 + i3 * dnd[3];
-                            *pt4 = static_cast<T>(*pnd4);
-                            for (size_t i4 = 1; i4 < s[4]; ++i4)
-                            {
-                                T* pt5 = pt4 + i4 * dt[4];
-                                const S* pnd5 = pnd4 + i4 * dnd[4];
-                                *pt5 = static_cast<T>(*pnd5);
-                                for (size_t i5 = 1; i5 < s[5]; ++i5)
-                                {
-                                    T* pt6 = pt5 + i5 * dt[5];
-                                    const S* pnd6 = pnd5 + i5 * dnd[5];
-                                    *pt6 = static_cast<T>(*pnd6);
-                                    for (size_t i6 = 1; i6 < s[6]; ++i6)
-                                    {
-                                        T* pt7 = pt6 + i6 * dt[6];
-                                        const S* pnd7 = pnd6 + i6 * dnd[6];
-                                        *pt7 = static_cast<T>(*pnd7);
-                                        for (size_t i7 = 1; i7 < s[7]; ++i7)
-                                        {
-                                            T* pt8 = pt7 + i7 * dt[7];
-                                            const S* pnd8 = pnd7 + i7 * dnd[7];
-                                            *pt8 = static_cast<T>(*pnd8);
-                                        }
-                                    }
-                                }
-                            }
-                        }
+                        ix[d] = 0;
+                        ++(ix[d - 1]);
                     }
                 }
             }
