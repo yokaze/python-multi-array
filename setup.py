@@ -1,7 +1,19 @@
 import numpy
 import os
+import platform
+import subprocess
 import sys
 from distutils.core import setup, Extension
+
+include_dirs = []
+library_dirs = []
+
+if (platform.system() == 'Darwin'):
+    try:
+        subprocess.check_call(['which', 'brew'], stdout = subprocess.PIPE)
+        include_dirs = ['/usr/local/include']
+        library_dirs = ['/usr/local/lib']
+    finally: pass
 
 modules = []
 modules.append(['multi_array', 'python_multi_array.cpp'])
@@ -13,9 +25,9 @@ for module in modules:
     ex_module = Extension(
         mod_name,
         sources = [mod_source],
-        include_dirs = ['/usr/local/include', numpy.get_include()],
+        include_dirs = [numpy.get_include()] + include_dirs,
         libraries = ['boost_python', 'boost_numpy'],
-        library_dirs = ['/usr/local/lib'],
+        library_dirs = library_dirs,
         extra_compile_args=['-std=c++14'],
     )
     extensions.append(ex_module)
