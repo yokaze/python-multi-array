@@ -41,14 +41,15 @@ array([[ 0.91382688,  0.374331  ],
        [ 0.80906659,  0.75029951]], dtype=float32)
 ```
 
-# Install
+# Usage
 
 ```
 $ make
 ```
+will build ```multi_array.so``` in the same directory.
 
-You may change the include directory by editing setup.py.
+Full documentation is available on [GitHub Wiki](https://github.com/yokaze/python-multi-array/wiki).
 
 # Requirements
-
-boost 1.63.0+
+- [NumPy](http://www.numpy.org/)
+- [boost 1.63.0+](http://www.boost.org/) ... v1.63.0 or later is required to use Boost.Python NumPy Extension.
