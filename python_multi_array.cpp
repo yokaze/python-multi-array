@@ -87,24 +87,30 @@ namespace python_multi_array
         template <class T>
         python::object make_typed_sized(const size_t* s, size_t ndim)
         {
+            auto reset = [](const auto& arr)
+            {
+                std::fill(arr->origin(), arr->origin() + arr->num_elements(), 0);
+                return arr;
+            };
+
             switch (ndim)
             {
                 case 1:
-                    return python::object(std::make_shared<multi_array<T, 1>>(extents[s[0]]));
+                    return python::object(reset(std::make_shared<multi_array<T, 1>>(extents[s[0]])));
                 case 2:
-                    return python::object(std::make_shared<multi_array<T, 2>>(extents[s[0]][s[1]]));
+                    return python::object(reset(std::make_shared<multi_array<T, 2>>(extents[s[0]][s[1]])));
                 case 3:
-                    return python::object(std::make_shared<multi_array<T, 3>>(extents[s[0]][s[1]][s[2]]));
+                    return python::object(reset(std::make_shared<multi_array<T, 3>>(extents[s[0]][s[1]][s[2]])));
                 case 4:
-                    return python::object(std::make_shared<multi_array<T, 4>>(extents[s[0]][s[1]][s[2]][s[3]]));
+                    return python::object(reset(std::make_shared<multi_array<T, 4>>(extents[s[0]][s[1]][s[2]][s[3]])));
                 case 5:
-                    return python::object(std::make_shared<multi_array<T, 5>>(extents[s[0]][s[1]][s[2]][s[3]][s[4]]));
+                    return python::object(reset(std::make_shared<multi_array<T, 5>>(extents[s[0]][s[1]][s[2]][s[3]][s[4]])));
                 case 6:
-                    return python::object(std::make_shared<multi_array<T, 6>>(extents[s[0]][s[1]][s[2]][s[3]][s[4]][s[5]]));
+                    return python::object(reset(std::make_shared<multi_array<T, 6>>(extents[s[0]][s[1]][s[2]][s[3]][s[4]][s[5]])));
                 case 7:
-                    return python::object(std::make_shared<multi_array<T, 7>>(extents[s[0]][s[1]][s[2]][s[3]][s[4]][s[5]][s[6]]));
+                    return python::object(reset(std::make_shared<multi_array<T, 7>>(extents[s[0]][s[1]][s[2]][s[3]][s[4]][s[5]][s[6]])));
                 case 8:
-                    return python::object(std::make_shared<multi_array<T, 8>>(extents[s[0]][s[1]][s[2]][s[3]][s[4]][s[5]][s[6]][s[7]]));
+                    return python::object(reset(std::make_shared<multi_array<T, 8>>(extents[s[0]][s[1]][s[2]][s[3]][s[4]][s[5]][s[6]][s[7]])));
                 default:
                     throw std::invalid_argument("shape");
             }
