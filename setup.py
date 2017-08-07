@@ -17,6 +17,7 @@ if (platform.system() == 'Darwin'):
 
 modules = []
 modules.append(['multi_array', 'python_multi_array.cpp'])
+modules.append(['demo_module', 'demo_module.cpp'])
 
 extensions = []
 for module in modules:
@@ -32,4 +33,4 @@ for module in modules:
     )
     extensions.append(ex_module)
 
-setup(name = "multi_array", version = "0.9", ext_modules = extensions)
+setup(name = "multi_array", version = "1.0", ext_modules = extensions)
